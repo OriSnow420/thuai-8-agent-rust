@@ -1,3 +1,3 @@
 pub mod connection;
-pub mod state;
+pub mod player_api;
 pub mod model;

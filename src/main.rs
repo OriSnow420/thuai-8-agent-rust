@@ -11,7 +11,7 @@ struct Cli {
     token: Option<String>,
 }
 
-const SERVER_DEFAULT: &str = "127.0.0.1:14514";
+const SERVER_DEFAULT: &str = "ws://127.0.0.1:14514";
 const TOKEN_DEFAULT: &str = "1919810";
 
 #[tokio::main]
