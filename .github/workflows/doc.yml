@@ -39,7 +39,7 @@ jobs:
         run: cargo doc
       - name: Redirect index.html
         run: |
-          echo "<meta http-equiv="refresh" content="0;url=https://orisnow420.github.io/thuai-8-agent-rust/thuai-8-agent-rust/index.html" />" > ./target/doc/index.html
+          echo '<meta http-equiv="refresh" content="0;url=./thuai_8_agent_rust">' > ./target/doc/index.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
