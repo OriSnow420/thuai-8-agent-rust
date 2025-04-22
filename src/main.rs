@@ -1,6 +1,6 @@
 use clap::Parser;
-use thuai_8_agent_rust::run_agent;
 use std::env;
+use thuai_8_agent_rust::run_agent;
 
 #[derive(Parser)]
 #[command(about, long_about = None)]
@@ -20,13 +20,12 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     // Cli goes first, or get the env.
-    let server = cli.server.unwrap_or(
-        env::var("SERVER").unwrap_or(SERVER_DEFAULT.to_string())
-    );
-    let token = cli.token.unwrap_or(
-        env::var("TOKEN").unwrap_or(TOKEN_DEFAULT.to_string())
-    );
+    let server = cli
+        .server
+        .unwrap_or(env::var("SERVER").unwrap_or(SERVER_DEFAULT.to_string()));
+    let token = cli
+        .token
+        .unwrap_or(env::var("TOKEN").unwrap_or(TOKEN_DEFAULT.to_string()));
 
     run_agent(server, token).await;
-
 }
