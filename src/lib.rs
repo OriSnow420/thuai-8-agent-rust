@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate strum;
 
-mod agent;
-mod logic;
+pub mod agent;
+pub mod logic;
 
 use std::time::Duration;
 
@@ -16,4 +16,3 @@ pub async fn run_agent(server: String, token: String) {
     sleep(Duration::from_secs(10)).await;
     // TODO: finish the function
 }
-

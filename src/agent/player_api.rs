@@ -1,4 +1,5 @@
-use super::model::{AvailableBuffs, BuffKind, EnvironmentInfo, GameStatistics, Players, SkillKind};
+use super::model::
+    {AvailableBuffs, BuffKind, EnvironmentInfo, GameStatistics, Players, SkillKind};
 
 
 pub struct Agent {
