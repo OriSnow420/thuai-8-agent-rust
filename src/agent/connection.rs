@@ -1,3 +1,10 @@
-mod connection {
 
+mod connection {
+    pub struct AgentClient {
+        
+    }
+
+    impl AgentClient {
+        
+    }
 }

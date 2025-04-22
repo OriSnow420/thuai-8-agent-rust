@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate strum;
+
 mod agent;
 
 use tracing::info;
