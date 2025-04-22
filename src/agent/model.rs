@@ -17,6 +17,7 @@ const EPSILON: f64 = 1e-6;
 /// 
 /// Should be constructed with [`Position<T>::new`].
 /// 
+/// Fields should be get through getter method `field()`.
 /// 
 /// # Example
 /// 
@@ -74,6 +75,8 @@ pub enum Stage {
 /// One entry on the scoreboard, recording the player's token and score.
 /// 
 /// Should be created with [`TokenScore::new`].
+/// 
+/// Fields should be get through getter method `field()`.
 #[derive(Debug, PartialEq, Getters)]
 #[getset(get = "pub")]
 pub struct TokenScore {
@@ -84,6 +87,8 @@ pub struct TokenScore {
 /// Records all player's token and his score.
 /// 
 /// Should be created with [`ScoreBoard::new`].
+/// 
+/// Fields should be get through getter method `field()`.
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct ScoreBoard {
@@ -97,6 +102,8 @@ pub struct ScoreBoard {
 /// - scoreboard
 /// 
 /// Should be created with [`GameStatistics::new`].
+/// 
+/// Fields should be get through getter method `field()`.
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct GameStatistics {
@@ -166,6 +173,8 @@ impl Display for GameStatistics {
 /// Note that walls have directions, and it is recorded in `position.angle`,
 /// though the angle of a wall will only be 0 (parallel to x axis) or 90 (
 /// parallel to y axis).
+/// 
+/// Fields should be get through getter method `field()`.
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct Wall {
@@ -179,6 +188,8 @@ pub struct Wall {
 /// (parallel to y axis).
 /// 
 /// When health goes to 0, the fence will be broken and will disappear.
+/// 
+/// Fields should be get through getter method `field()`.
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct Fence {
@@ -197,6 +208,8 @@ pub struct Fence {
 /// 
 /// and two additional bool values used to say if its a missile or it is
 /// anti-armor.
+/// 
+/// Fields should be get through getter method `field()`.
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct Bullet {
@@ -215,6 +228,8 @@ pub struct Bullet {
 /// - Map size
 /// - List of [`Wall`]s and [`Fence`]s
 /// - List of [`Bullet`]s
+/// 
+/// Fields should be get through getter method `field()`.
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct EnvironmentInfo {
@@ -440,7 +455,7 @@ pub enum SkillKind {
 
 /// Represent the weapon info of a player. 
 /// 
-/// Field should be get like through getter method `field()`.
+/// Fields should be get through getter method `field()`.
 /// 
 /// # Examples
 /// ```
@@ -464,7 +479,7 @@ pub struct Weapon {
 
 /// Represent the armor info of a player.
 ///
-/// Field should be get like through getter method `field()`.
+/// Fields should be get through getter method `field()`.
 /// 
 /// # Examples
 /// 
@@ -489,7 +504,7 @@ pub struct Armor {
 
 /// Represent one skill with kind, cool down, etc.
 /// 
-/// Field should be get like through getter method `field()`.
+/// Fields should be get through getter method `field()`.
 /// 
 /// # Examples
 /// 
@@ -511,7 +526,7 @@ pub struct Skill {
 
 /// Player struct.
 /// 
-/// Field should be get like through getter method `field()`.
+/// Fields should be get through getter method `field()`.
 /// 
 /// # Examples
 /// 
