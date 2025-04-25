@@ -80,23 +80,39 @@ impl AgentClient {
 }
 
 pub trait ConnectionAPI {
-    async fn send_perform_turn(
+    fn send_perform_turn(
         &mut self,
         direction: TurnDirection,
         angle: u32,
-    ) -> Result<(), Box<dyn Error>>;
-    async fn send_perform_move(
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_perform_move(
         &mut self,
         direction: MoveDirection,
         distance: f64,
-    ) -> Result<(), Box<dyn Error>>;
-    async fn send_perform_attack(&mut self) -> Result<(), Box<dyn Error>>;
-    async fn send_perform_skill(&mut self, skill_name: SkillKind) -> Result<(), Box<dyn Error>>;
-    async fn send_perform_select(&mut self, buff_name: BuffKind) -> Result<(), Box<dyn Error>>;
-    async fn send_get_player_info(&mut self) -> Result<(), Box<dyn Error>>;
-    async fn send_get_environment_info(&mut self) -> Result<(), Box<dyn Error>>;
-    async fn send_get_game_statistics(&mut self) -> Result<(), Box<dyn Error>>;
-    async fn send_get_available_buffs(&mut self) -> Result<(), Box<dyn Error>>;
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_perform_attack(
+        &mut self,
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_perform_skill(
+        &mut self,
+        skill_name: SkillKind,
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_perform_select(
+        &mut self,
+        buff_name: BuffKind,
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_get_player_info(
+        &mut self,
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_get_environment_info(
+        &mut self,
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_get_game_statistics(
+        &mut self,
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
+    fn send_get_available_buffs(
+        &mut self,
+    ) -> impl std::future::Future<Output = Result<(), Box<dyn Error>>> + Send;
 }
 
 // TODO: definition of messages
