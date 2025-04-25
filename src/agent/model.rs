@@ -2,6 +2,8 @@ use std::fmt::Display;
 
 use getset::Getters;
 
+use serde::{Deserialize, Serialize};
+
 // Position Things
 const EPSILON: f64 = 1e-6;
 
@@ -12,12 +14,14 @@ const EPSILON: f64 = 1e-6;
 /// [`PartialEq`] doesn't compare angles.
 ///
 ///
-/// [`Display`] is implemented for `T` implements [`Display`], thus [`Position<i32>`]
+/// [`Display`] is implemented for `T` implements [`Serialize`], thus [`Position<i32>`]
 /// and [`Position<f64>`] both can be formatted printed.
 ///
 /// Should be constructed with [`Position<T>::new`].
 ///
 /// Fields should be get through getter method `field()`.
+///
+/// `angle` is represented in `rad`, but not limited in $[0,2\pi)$ or $[-\pi,\pi)$.
 ///
 /// # Example
 ///
@@ -29,7 +33,33 @@ const EPSILON: f64 = 1e-6;
 ///
 /// assert_eq!(pos1, pos2);
 /// ```
-#[derive(Debug, Clone, Getters)]
+///
+/// Deserialize
+/// ```
+/// use thuai_8_agent_rust::agent::model::Position;
+///
+/// let data = r#"{
+///     "x": 3.0,
+///     "y": 4.0,
+///     "angle": 5.0
+/// }"#;
+///
+/// let pos: Position<f64> = serde_json::from_str(data).unwrap();
+///
+/// assert_eq!(pos, Position::new(3.0, 4.0, 5.0));
+/// ```
+///
+/// Serialize
+/// ```
+/// use thuai_8_agent_rust::agent::model::Position;
+///
+/// let pos = Position::new(3, 4, 5.0);
+///
+/// let data = serde_json::to_string(&pos).unwrap();
+///
+/// assert_eq!(data, r#"{"x":3,"y":4,"angle":5.0}"#);
+/// ```
+#[derive(Debug, Clone, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Position<T> {
     x: T,
@@ -72,10 +102,34 @@ impl<T> Position<T> {
 // Game Statistics Things...
 
 /// Represent the game stage.
-#[derive(Debug, EnumString, PartialEq)]
+///
+/// # Example
+/// Serialize
+/// ```
+/// use thuai_8_agent_rust::agent::model::Stage;
+///
+/// let stage = Stage::Rest;
+///
+/// let stage = serde_json::to_string(&stage).unwrap();
+///
+/// assert_eq!(stage, "\"REST\"");
+/// ```
+///
+/// Deserialize
+/// ```
+/// use thuai_8_agent_rust::agent::model::Stage;
+///
+/// let stage: Stage = serde_json::from_str(r#""BATTLE""#).unwrap();
+///
+/// assert_eq!(stage, Stage::Battle);
+/// ```
+#[derive(Debug, EnumString, PartialEq, Serialize, Deserialize)]
 pub enum Stage {
+    #[serde(rename = "REST")]
     Rest,
+    #[serde(rename = "BATTLE")]
     Battle,
+    #[serde(rename = "END")]
     End,
 }
 
@@ -188,10 +242,12 @@ impl Display for GameStatistics {
 /// parallel to y axis).
 ///
 /// Fields should be get through getter method `field()`.
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Wall {
-    position: Position<i32>,
+    x: i32,
+    y: i32,
+    angle: f64,
 }
 
 /// Represent a breakable wall (aka fence in thuai-8) in the map.
@@ -203,7 +259,7 @@ pub struct Wall {
 /// When health goes to 0, the fence will be broken and will disappear.
 ///
 /// Fields should be get through getter method `field()`.
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Fence {
     position: Position<i32>,
@@ -223,15 +279,22 @@ pub struct Fence {
 /// anti-armor.
 ///
 /// Fields should be get through getter method `field()`.
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Bullet {
+    #[serde(rename = "no")]
     id: u32,
+    #[serde(rename = "isMissile")]
     is_missile: bool,
+    #[serde(rename = "isAntiArmor")]
     is_anti_armor: bool,
+    #[serde(rename = "position")]
     position: Position<f64>,
+    #[serde(rename = "speed")]
     speed: f64,
+    #[serde(rename = "damage")]
     damage: f64,
+    #[serde(rename = "traveledDistance")]
     traveled_distance: f64,
 }
 
@@ -254,7 +317,11 @@ pub struct EnvironmentInfo {
 
 impl Display for Wall {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Wall: {{ position: {} }}", self.position)
+        write!(
+            f,
+            "Wall: {{ position: {{ x: {}, y: {}, angle: {}}} }}",
+            self.x, self.y, self.angle
+        )
     }
 }
 
@@ -346,7 +413,7 @@ impl Display for EnvironmentInfo {
 /// let buff = BuffKind::Missile;
 /// let skill = SkillKind::Missile;
 ///
-/// assert_eq!(skill, buff);
+/// assert_eq!(skill, buff); // Compile will fail!
 /// ```
 ///
 /// Get [`BuffKind`] from [`String`].
@@ -359,27 +426,52 @@ impl Display for EnvironmentInfo {
 ///
 /// assert_eq!(buff, buff_from_string);
 /// ```
-#[derive(Debug, EnumString, PartialEq, Clone, Display)]
+#[derive(Debug, EnumString, PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub enum BuffKind {
+    #[serde(rename = "BLACK_OUT")]
     BlackOut,
+    #[serde(rename = "SPEED_UP")]
     SpeedUp,
+    #[serde(rename = "FLASH")]
     Flash,
+    #[serde(rename = "DESTROY")]
     Destroy,
+    #[serde(rename = "CONSTRUCT")]
     Construct,
+    #[serde(rename = "TRAP")]
     Trap,
+    #[serde(rename = "MISSILE")]
     Missile,
+    #[serde(rename = "KAMUI")]
     Kamui,
+    #[serde(rename = "BULLET_COUNT")]
     BulletCount,
+    #[serde(rename = "BULLET_SPEED")]
     BulletSpeed,
+    #[serde(rename = "ATTACK_SPEED")]
     AttackSpeed,
+    #[serde(rename = "LASER")]
     Laser,
+    #[serde(rename = "DAMAGE")]
     Damage,
+    #[serde(rename = "ANTI_ARMOR")]
     AntiArmor,
+    #[serde(rename = "ARMOR")]
     Armor,
+    #[serde(rename = "REFLECT")]
     Reflect,
+    #[serde(rename = "DODGE")]
     Dodge,
+    #[serde(rename = "KNIFE")]
     Knife,
+    #[serde(rename = "GRAVITY")]
     Gravity,
+}
+
+impl Display for BuffKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", serde_json::to_string(self).unwrap())
+    }
 }
 
 /// Type alias for AvailableBuffs, which is a [`Vec<T>`] where `T` is [`BuffKind`].
@@ -412,12 +504,22 @@ impl PartialEq<SkillKind> for BuffKind {
 ///
 /// assert_eq!(state, state_from_string);
 /// ```
-#[derive(Debug, PartialEq, EnumString, Clone, Display)]
+#[derive(Debug, PartialEq, EnumString, Clone, Serialize, Deserialize)]
 pub enum ArmorKnifeState {
+    #[serde(rename = "NOT_OWNED")]
     NotOwned,
+    #[serde(rename = "AVAILABLE")]
     Available,
+    #[serde(rename = "ACTIVE")]
     Active,
+    #[serde(rename = "BROKEN")]
     Broken,
+}
+
+impl Display for ArmorKnifeState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", serde_json::to_string(self).unwrap())
+    }
 }
 
 /// Enum class to represent all kinds of skills. Skills are provided by the buff
@@ -450,7 +552,7 @@ pub enum ArmorKnifeState {
 /// let buff = BuffKind::Flash;
 /// let skill = SkillKind::Flash;
 ///
-/// assert_eq!(skill, buff);
+/// assert_eq!(skill, buff); // Compile fail
 /// ```
 ///
 /// Get [`BuffKind`] from [`String`].
@@ -463,16 +565,30 @@ pub enum ArmorKnifeState {
 ///
 /// assert_eq!(buff, buff_from_string);
 /// ```
-#[derive(Debug, PartialEq, EnumString, Clone, Display)]
+#[derive(Debug, PartialEq, EnumString, Clone, Copy, Serialize, Deserialize)]
 pub enum SkillKind {
+    #[serde(rename = "BLACK_OUT")]
     BlackOut,
+    #[serde(rename = "SPEED_UP")]
     SpeedUp,
+    #[serde(rename = "FLASH")]
     Flash,
+    #[serde(rename = "DESTROY")]
     Destroy,
+    #[serde(rename = "CONSTRUCT")]
     Construct,
+    #[serde(rename = "TRAP")]
     Trap,
+    #[serde(rename = "MISSILE")]
     Missile,
+    #[serde(rename = "KAMUI")]
     Kamui,
+}
+
+impl Display for SkillKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", serde_json::to_string(self).unwrap())
+    }
 }
 
 /// Represent the weapon info of a player.
@@ -487,15 +603,22 @@ pub enum SkillKind {
 ///
 /// assert_eq!(weapon.damage(), &20);
 /// ```
-#[derive(Debug, Clone, PartialEq, Getters)]
+#[derive(Debug, Clone, PartialEq, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Weapon {
+    #[serde(rename = "attackSpeed")]
     attack_speed: f64,
+    #[serde(rename = "bulletSpeed")]
     bullet_speed: f64,
+    #[serde(rename = "isLaser")]
     is_laser: bool,
+    #[serde(rename = "antiArmor")]
     anti_armor: bool,
+    #[serde(rename = "damage")]
     damage: u32,
+    #[serde(rename = "maxBullets")]
     max_bullets: u32,
+    #[serde(rename = "currentBullets")]
     current_bullets: u32,
 }
 
@@ -513,14 +636,20 @@ pub struct Weapon {
 /// assert_eq!(armor.health(), &0);
 ///
 /// ```
-#[derive(Debug, Clone, PartialEq, Getters)]
+#[derive(Debug, Clone, PartialEq, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Armor {
+    #[serde(rename = "canReflect")]
     can_reflect: bool,
+    #[serde(rename = "gravityField")]
     gravity_field: bool,
+    #[serde(rename = "armorValue")]
     armor_value: u32,
+    #[serde(rename = "health")]
     health: i32,
+    #[serde(rename = "dodgeRate")]
     dodge_rate: f64,
+    #[serde(rename = "knife")]
     knife: ArmorKnifeState,
 }
 
@@ -537,12 +666,16 @@ pub struct Armor {
 ///
 /// assert_eq!(skill.name(), &SkillKind::BlackOut);
 /// ```
-#[derive(Debug, Clone, PartialEq, Getters)]
+#[derive(Debug, Clone, PartialEq, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Skill {
+    #[serde(rename = "name")]
     name: SkillKind,
+    #[serde(rename = "maxCooldown")]
     max_cool_down: u32,
+    #[serde(rename = "currentCooldown")]
     current_cool_down: u32,
+    #[serde(rename = "isActive")]
     is_active: bool,
 }
 
@@ -568,13 +701,18 @@ pub struct Skill {
 ///
 /// assert_eq!(player.weapon(), &Weapon::new(1.0, 1.0, false, false, 10, 10, 0));
 /// ```
-#[derive(Debug, Clone, PartialEq, Getters)]
+#[derive(Debug, Clone, PartialEq, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct Player {
+    #[serde(rename = "token")]
     token: String,
+    #[serde(rename = "position")]
     position: Position<f64>,
+    #[serde(rename = "weapon")]
     weapon: Weapon,
+    #[serde(rename = "armor")]
     armor: Armor,
+    #[serde(rename = "skills")]
     skills: Vec<Skill>,
 }
 
@@ -654,4 +792,28 @@ impl Player {
             skills,
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum MoveDirection {
+    #[serde(rename = "BACK")]
+    Back,
+    #[serde(rename = "FORTH")]
+    Forth,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum TurnDirection {
+    #[serde(rename = "CLOCKWISE")]
+    Clockwise,
+    #[serde(rename = "COUNTER_CLOCKWISE")]
+    CounterClockwise,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum RequestType {
+    #[serde(rename = "SELF")]
+    TheSelf,
+    #[serde(rename = "OPPONENT")]
+    Opponent,
 }
